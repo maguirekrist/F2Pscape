@@ -17,8 +17,8 @@ import java.util.List;
 
 public enum BotTasks {
 
-    WOOD_CUTTING(2, new WoodCutting()),
-    FISHING(1, new Fishing()),
+    WOOD_CUTTING(1, new WoodCutting()),
+    FISHING(2, new Fishing()),
     FIREMAKING(3, new Firemaking()),
     COMBAT(4, new Combat());
 
@@ -33,6 +33,8 @@ public enum BotTasks {
     public void execute() {
         botTask.run();
     }
+
+    public BotTask getBotTask() { return this.botTask; }
 
     public int getPriority() {
         return this.priority;

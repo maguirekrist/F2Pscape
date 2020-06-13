@@ -40,4 +40,6 @@ public class BotTaskManager {
     }
 
     public static BotTasks getNextTask() { return nextTask; }
+
+    public static long getTimeTilNxtTask() { return timeTilNxtTask; }
 }

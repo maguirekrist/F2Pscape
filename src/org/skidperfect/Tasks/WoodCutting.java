@@ -34,14 +34,13 @@ public class WoodCutting extends BotTask {
     private final String[] allAxes = { BRONZE_AXE, IRON_AXE, MITH_AXE, ADAM_AXE, RUNE_AXE };
 
     //Lvl
-    public static int currentWoodCutLvl;
 
     public static WCStates currentState;
 
     private enum WCStates {
         TREES(RSBank.DRAYNOR, Area.rectangular(3074, 3275, 3086, 3263), 0, "Tree", "Logs"),
-        OAKS(RSBank.VARROCK_WEST, Area.rectangular(3155, 3421, 3172, 3398), 0, "Oak", "Oak Logs"),
-        WILLOWS(RSBank.DRAYNOR, Area.rectangular(3080, 3239, 3094, 3224), 0, "Willow", "Willow Logs");
+        OAKS(RSBank.VARROCK_WEST, Area.rectangular(3157, 3421, 3172, 3381), 15, "Oak", "Oak Logs"),
+        WILLOWS(RSBank.DRAYNOR, Area.rectangular(3080, 3239, 3094, 3224), 30, "Willow", "Willow Logs");
 
         private final RSBank rsBank;
         private final Area chopArea;
@@ -82,10 +81,10 @@ public class WoodCutting extends BotTask {
     @Override
     public void run() {
         //LEARN how to setup seperate thread for checking LVL update
-        if(currentWoodCutLvl != Skills.getCurrentLevel(Skill.WOODCUTTING)) {
-            currentWoodCutLvl = Skills.getCurrentLevel(Skill.WOODCUTTING);
-            Log.info("Current WoodCutting Level" + currentWoodCutLvl);
-            updateWCState(currentWoodCutLvl);
+        if(currentLvl != Skills.getCurrentLevel(Skill.WOODCUTTING)) {
+            currentLvl = Skills.getCurrentLevel(Skill.WOODCUTTING);
+            Log.info("Current WoodCutting Level" + currentLvl);
+            updateWCState(currentLvl);
         }
 
 
@@ -104,12 +103,12 @@ public class WoodCutting extends BotTask {
 
                 }
             } else if(!Inventory.isFull() && currentState.getChopArea().contains(Players.getLocal())) {
-                if (Players.getLocal().getAnimation() == -1 && !Movement.isDestinationSet()) {
+                if (true) {
                     SceneObject tree = SceneObjects.getNearest(currentState.getTreeName());
                     if (tree.interact("Chop down")) {
                         Log.info("Trying to interacting with SceneObject: " + tree.getId());
-                        if (Time.sleepUntil(() -> Players.getLocal().getAnimation() == 879, Random.high(3000, 4500))) {
-                            Time.sleepUntil(() -> Players.getLocal().getAnimation() == -1, Random.high(4000, 6500));
+                        if (Time.sleepUntil(() -> Players.getLocal().getAnimation() != -1, Random.high(3000, 4000))) {
+                            Time.sleepUntil(() -> Players.getLocal().getAnimation() == -1 || tree == null, Random.high(20000, 80500));
                         } else {
                             Log.severe("Timeout exceeded while trying to interact with SceneObject: " + tree.getId());
                         }
@@ -128,7 +127,7 @@ public class WoodCutting extends BotTask {
                         Time.sleepUntil(() -> Inventory.isEmpty(), Random.nextInt(4000, 6000));
                     }
                 }
-                Item[] items = getBestItemInBank(currentWoodCutLvl, "axe");
+                Item[] items = getBestItemInBank(currentLvl, "axe");
                 if(Bank.close()) {
                     Time.sleepUntil(() -> Bank.isClosed(), Random.nextInt(800, 1600));
                 }

@@ -66,13 +66,12 @@ public class Combat extends BotTask {
     }
 
     private static CBStates currentCBState;
-    private static int currentCbLvl;
 
     @Override
     public void run() {
-        if(currentCbLvl != Players.getLocal().getCombatLevel()) {
-            currentCbLvl = Players.getLocal().getCombatLevel();
-            Log.info("Current Combat Level" + currentCbLvl);
+        if(currentLvl != Players.getLocal().getCombatLevel()) {
+            currentLvl = Players.getLocal().getCombatLevel();
+            Log.info("Current Combat Level" + currentLvl);
             updateCbState();
         }
         if(Equipment.contains(combatSwords) && Equipment.contains(combatShields)) {
@@ -117,7 +116,7 @@ public class Combat extends BotTask {
 
     private void updateCbState() {
         for (CBStates state: CBStates.values()) {
-            if(currentCbLvl >= state.getRequiredCbtLvl()) {
+            if(currentLvl >= state.getRequiredCbtLvl()) {
                 currentCBState = state;
                 Log.severe("ERROR : " + currentCBState.toString());
             }
