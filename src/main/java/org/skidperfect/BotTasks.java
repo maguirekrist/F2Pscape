@@ -8,19 +8,18 @@ import org.rspeer.runetek.api.component.Bank;
 import org.rspeer.runetek.api.scene.Npcs;
 import org.rspeer.runetek.api.scene.SceneObjects;
 import org.rspeer.ui.Log;
-import org.skidperfect.Tasks.Combat;
-import org.skidperfect.Tasks.Firemaking;
-import org.skidperfect.Tasks.Fishing;
-import org.skidperfect.Tasks.WoodCutting;
+import org.skidperfect.Tasks.*;
 
 import java.util.List;
 
 public enum BotTasks {
 
-    WOOD_CUTTING(1, new WoodCutting()),
-    FISHING(2, new Fishing()),
-    FIREMAKING(3, new Firemaking()),
-    COMBAT(4, new Combat());
+    WOOD_CUTTING(52, new WoodCutting()),
+    FIREMAKING(1, new Firemaking()),
+    INTERMISSION(100, new Intermission()),
+    QUESTING(1, new Questing()),
+    FISHING(51, new Fishing()),
+    COMBAT(50, new Combat());
 
     private int priority;
     private BotTask botTask;

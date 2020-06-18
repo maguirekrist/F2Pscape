@@ -26,7 +26,6 @@ import org.skidperfect.BotTask;
 public class Fishing extends BotTask  {
 
     private final Area portSarimDepost = Area.rectangular(3040, 3238, 3053, 3232);
-    private final String depostBox = "Bank deposit Box";
     private final Area posStuck1 = Area.rectangular(2952, 3145, 2963, 3137, 1);
     private final Area posStuck2 = Area.rectangular(3029, 3222, 3040, 3211, 1);
 
@@ -98,18 +97,19 @@ public class Fishing extends BotTask  {
     public static TaskData currentTask;
 
     @Override
-    public void run() {
+    public int run() {
         if(currentLvl != Skills.getCurrentLevel(Skill.FISHING)) {
             currentLvl = Skills.getCurrentLevel(Skill.FISHING);
             Log.info("Current " + Skill.FISHING.toString() + " Level" + currentLvl);
             update(currentLvl);
-
+            return 300;
         }
 
         if(posStuck1.contains(Players.getLocal().getPosition()) || posStuck2.contains(Players.getLocal().getPosition())) {
             SceneObject plank = SceneObjects.getNearest("Gangplank");
             Log.severe("STUCK: FIXING! ");
             if(plank.interact("Cross")) Time.sleepUntil(() -> !posStuck1.contains(Players.getLocal().getPosition()) || !posStuck2.contains(Players.getLocal().getPosition()) , 10000);
+            return 300;
         }
 
         if(Equipment.contains(currentTask.getTools()) || Inventory.contains(currentTask.getTools())) {
@@ -118,13 +118,17 @@ public class Fishing extends BotTask  {
                     Npc pool = Npcs.getNearest(n -> n.getName().equalsIgnoreCase(currentTask.spotName) && n.containsAction(currentTask.getAction()));
                     if(pool == null) {
                         Movement.walkToRandomized(currentTask.getArea().getCenter());
+                        return 300;
                     }
                     if(Players.getLocal().getAnimation() == -1 && pool != null) {
                         if(pool.interact(currentTask.getAction())) {
                             if (Time.sleepUntil(() -> Players.getLocal().getAnimation() != -1, Random.high(3000, 4500))) {
                                 Log.severe("Interacting with " + pool.getId());
                                 Time.sleepUntil(() -> Players.getLocal().getAnimation() == -1 || Inventory.isFull() || Dialog.isOpen(), Random.nextInt(8*60000, 10*60000));
+                                return 300;
                             }
+                        } else {
+                            return 300;
                         }
                     }
                 } else {
@@ -137,65 +141,25 @@ public class Fishing extends BotTask  {
                                 if (item.interact("Drop")) Time.sleep(Random.high(750, 1250));
                         }
                     }
+                    return 300;
                 } else if(currentTask.isPortMethod() == false) {
                     Movement.getDaxWalker().walkToBank(currentTask.getRsBank());
-                    if(bankAtBank() && Bank.isOpen()) {
-                        if(Bank.depositAllExcept(currentTask.getTools())) {
-                            Time.sleepUntil(() -> Inventory.containsOnly(currentTask.getTools()), Random.nextInt(4000, 6000));
-                        }
-                        if(Bank.close()) {
-                            Time.sleepUntil(() -> Bank.isClosed(), Random.nextInt(800, 1600));
-                        }
-                    }
+                    return 300;
                 } else if(currentTask.isPortMethod() == true) {
                     Movement.getDaxWalker().walkTo(portSarimDepost.getCenter());
                     if(portSarimDepost.contains(Players.getLocal().getPosition())) {
-                        SceneObject depo = SceneObjects.getNearest(depostBox);
-                        if(depo.interact("Deposit")) {
-                            Time.sleepUntil(()-> DepositBox.isOpen(), 7000);
-                            if(DepositBox.isOpen()) {
-                                for (String fish: currentTask.getFish()) {
-                                    Item[] item = DepositBox.getItems(i -> i.getName().equalsIgnoreCase(fish));
-                                    if(item[0].interact("Deposit-All")) Time.sleepUntil(() -> !Inventory.contains(fish), 5000);
-                                }
-                                if(DepositBox.close()) {
-                                    Log.fine("Successfully deposited Items in deposit box!");
-                                }
-                            }
-                        }
+                        return 300;
                     }
                 }
             }
         } else {
-            Movement.getDaxWalker().walkToBank(currentTask.getRsBank());
-            if(bankAtBank() && Bank.isOpen()) {
-                if(!Inventory.isEmpty()) {
-                    if(Bank.depositInventory()) {
-                        Time.sleepUntil(() -> Inventory.isEmpty(), Random.nextInt(4000, 6000));
-                    }
-                }
-                for (String item: currentTask.getTools()) {
-                    if(Bank.withdrawAll(item)) Time.sleepUntil(() -> Inventory.contains(currentTask.getTools()), Random.nextInt(4000, 8000));
-                    Time.sleep(500, 700);
-                }
-                if(Bank.close()) {
-                    Time.sleepUntil(() -> Bank.isClosed(), Random.nextInt(800, 1600));
-                }
-            }
+           return 300;
         }
-
+        return 300;
     }
 
     @Override
     public void update(int lvl) {
-        if(lvl < 20) {
-            currentTask = TaskData.SHRIMPS;
-        } else if(lvl < 40) {
-            currentTask = TaskData.TROUT;
-        } else if(lvl < 50) {
-            currentTask = TaskData.LOBSTER;
-        } else if (lvl < 99) {
-            currentTask = TaskData.SWORDFISH;
-        }
+
     }
 }
